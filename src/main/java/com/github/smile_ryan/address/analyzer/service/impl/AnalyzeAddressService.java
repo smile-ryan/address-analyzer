@@ -1,14 +1,16 @@
-package com.github.smile_ryan.address.analyzer.service;
+package com.github.smile_ryan.address.analyzer.service.impl;
 
 import com.github.smile_ryan.address.analyzer.common.lucene.SynonymsAnalyzer;
 import com.github.smile_ryan.address.analyzer.common.model.Address;
 import com.github.smile_ryan.address.analyzer.common.model.Region;
+import com.github.smile_ryan.address.analyzer.common.model.User;
 import com.github.smile_ryan.address.analyzer.common.searcher.ResultVisitor;
+import com.github.smile_ryan.address.analyzer.common.searcher.SearchVisitor;
 import com.github.smile_ryan.address.analyzer.common.searcher.TreeNode;
 import com.github.smile_ryan.address.analyzer.common.searcher.TreeNode.SearchNodeBuilder;
-import com.github.smile_ryan.address.analyzer.common.searcher.SearchVisitor;
 import com.github.smile_ryan.address.analyzer.common.util.AddressUtils;
-import com.github.smile_ryan.address.analyzer.common.util.JSONUtils;
+import com.github.smile_ryan.address.analyzer.service.AnalyzeService;
+import com.github.smile_ryan.address.analyzer.service.LuceneService;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.hankcs.hanlp.HanLP;
@@ -17,8 +19,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -57,7 +57,7 @@ import org.springframework.util.CollectionUtils;
  */
 @Slf4j
 @Service
-public class AddressService {
+public class AnalyzeAddressService implements AnalyzeService {
 
     @Autowired
     private SearchVisitor searchVisitor;
@@ -71,43 +71,17 @@ public class AddressService {
     @Value("classpath:address.txt")
     private Resource addressResource;
 
-    public void deleteAllAddress() {
-        luceneService.deleteAll();
-    }
-
-    public void optimizeAddress() {
-        luceneService.optimize();
-    }
-
-    public void loadAddress() throws IOException {
-        File file = addressResource.getFile();
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        String line;
-        while (StringUtils.isNotBlank(line = reader.readLine())) {
-            List<String> addressSpits = Splitter.on(" ").omitEmptyStrings().splitToList(line);
-            Document doc = new Document();
-            String regionCode = addressSpits.get(0);
-            String regionName = addressSpits.get(1);
-            String parentCode = addressSpits.get(2);
-            String regionPath = addressSpits.get(4);
-            int regionLevel = Splitter.on(",").splitToList(regionPath).size();
-            doc.add(new StringField("RegionCode", regionCode, Store.YES));
-            doc.add(new TextField("RegionName", regionName, Store.YES));
-            doc.add(new TextField("ShortName", AddressUtils.extractShortName(regionName), Store.YES));
-            doc.add(new StringField("ParentCode", parentCode, Store.YES));
-            doc.add(new IntPoint("RegionLevel", regionLevel));
-            doc.add(new StoredField("RegionLevel", regionLevel));
-            doc.add(new NumericDocValuesField("RegionLevel", regionLevel));
-            doc.add(new StringField("RegionPath", regionPath, Store.YES));
-            luceneService.addDocument(doc);
-        }
-    }
-
-    public List<Address> analyze(String address) {
+    @Override
+    public List<Address> analyzeAddress(String address) {
         List<String> tokenizeList = tokenize(address);
         TreeNode treeNode = new SearchNodeBuilder().tokenizeList(tokenizeList).build().accept(searchVisitor);
         return AddressUtils.processAddressList(treeNode.accept(resultVisitor))
             .stream().peek(this::fillAddress).collect(Collectors.toList());
+    }
+
+    @Override
+    public User analyzeUser(String text) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public List<String> tokenize(String address) {
@@ -133,7 +107,8 @@ public class AddressService {
         List<Region> regionList = Lists.newLinkedList();
         try {
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
-            Query nameQuery = new QueryParser("RegionName", new SynonymsAnalyzer()).parse("RegionName:" + regionName + "^2.0 +ShortName:" + AddressUtils.extractShortName(regionName));
+            Query nameQuery = new QueryParser("RegionName", new SynonymsAnalyzer())
+                .parse("RegionName:" + regionName + "^2.0 +ShortName:" + AddressUtils.extractShortName(regionName));
             builder.add(nameQuery, Occur.MUST);
             builder.add(IntPoint.newRangeQuery("RegionLevel", 1, 3), Occur.FILTER);
             if (parentRegion != null && StringUtils.isNotEmpty(parentRegion.getRegionCode())) {
@@ -173,6 +148,35 @@ public class AddressService {
         Query query = new TermQuery(new Term("RegionCode", regionCode));
         List<Pair<ScoreDoc, Document>> list = luceneService.search(query);
         return CollectionUtils.isEmpty(list) ? null : list.get(0);
+    }
+
+    public void initAddressIndex() throws IOException {
+
+        luceneService.deleteAll();
+
+        File file = addressResource.getFile();
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        String line;
+        while (StringUtils.isNotBlank(line = reader.readLine())) {
+            List<String> addressSpits = Splitter.on(" ").omitEmptyStrings().splitToList(line);
+            Document doc = new Document();
+            String regionCode = addressSpits.get(0);
+            String regionName = addressSpits.get(1);
+            String parentCode = addressSpits.get(2);
+            String regionPath = addressSpits.get(4);
+            int regionLevel = Splitter.on(",").splitToList(regionPath).size();
+            doc.add(new StringField("RegionCode", regionCode, Store.YES));
+            doc.add(new TextField("RegionName", regionName, Store.YES));
+            doc.add(new TextField("ShortName", AddressUtils.extractShortName(regionName), Store.YES));
+            doc.add(new StringField("ParentCode", parentCode, Store.YES));
+            doc.add(new IntPoint("RegionLevel", regionLevel));
+            doc.add(new StoredField("RegionLevel", regionLevel));
+            doc.add(new NumericDocValuesField("RegionLevel", regionLevel));
+            doc.add(new StringField("RegionPath", regionPath, Store.YES));
+            luceneService.addDocument(doc);
+        }
+
+        luceneService.optimize();
     }
 
 

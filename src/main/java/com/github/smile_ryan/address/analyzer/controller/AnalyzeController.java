@@ -2,17 +2,10 @@ package com.github.smile_ryan.address.analyzer.controller;
 
 import com.github.smile_ryan.address.analyzer.common.model.Address;
 import com.github.smile_ryan.address.analyzer.common.model.User;
-import com.github.smile_ryan.address.analyzer.service.AddressService;
-import com.github.smile_ryan.address.analyzer.service.UserService;
+import com.github.smile_ryan.address.analyzer.service.AnalyzeService;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.hankcs.hanlp.HanLP;
-import com.hankcs.hanlp.seg.common.Term;
-import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,36 +25,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class AnalyzeController {
 
     @Autowired
-    private UserService userService;
+    private AnalyzeService analyzeAddressService;
 
     @Autowired
-    private AddressService addressService;
-
-    @GetMapping("/address/init")
-    public String init() throws IOException {
-        addressService.deleteAllAddress();
-        addressService.loadAddress();
-        addressService.optimizeAddress();
-        return "OK";
-    }
+    private AnalyzeService analyzeUserService;
 
     @GetMapping("/user")
     public User user(@RequestParam String text) {
         Preconditions.checkNotNull(text);
-        User user = new User();
-        user.setName(userService.extractName(text));
-        user.setPhoneNum(userService.extractPhoneNum(text));
-        user.setIdNum(userService.extractIDNum(text));
-        user.setZipCode(userService.extractZIPCode(text));
-        String address = userService.extractAddress(text, user);
-        List<Address> addressList = addressService.analyze(address);
-        user.setAddressList(addressList);
-        return user;
+        return analyzeUserService.analyzeUser(text);
     }
 
     @GetMapping("/address")
     public List<Address> address(@RequestParam String address) {
-        return addressService.analyze(address);
+        Preconditions.checkNotNull(address);
+        return analyzeAddressService.analyzeAddress(address);
     }
 
 

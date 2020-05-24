@@ -1,6 +1,8 @@
-package com.github.smile_ryan.address.analyzer.service;
+package com.github.smile_ryan.address.analyzer.service.impl;
 
+import com.github.smile_ryan.address.analyzer.common.model.Address;
 import com.github.smile_ryan.address.analyzer.common.model.User;
+import com.github.smile_ryan.address.analyzer.service.AnalyzeService;
 import com.google.common.collect.Lists;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.common.Term;
@@ -8,10 +10,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 /**
  * <pre>
@@ -23,7 +24,7 @@ import org.springframework.util.CollectionUtils;
  * @since v1.0.0
  */
 @Service
-public class UserService {
+public class AnalyzeUserService implements AnalyzeService {
 
     private final static List<String> DISTURB_WORDS = Lists.newArrayList("收件人", "收货人", "收货", "收件", "电话", "手机", "号码", "身份证", "身份证号", "姓名", "详细", "详情", "地址");
 
@@ -33,14 +34,36 @@ public class UserService {
 
     private final static String REGX_PHONE_NUM = "(?<=\\D|^)(\\(?\\++\\d{1,3}\\)?[\\s|\\-])?\\d{3}[\\s|\\-]?\\d{4}[\\s|\\-]?\\d{4}(?=\\D|$)";
 
-    public String deleteDisturbWords(String text) {
+
+    @Autowired
+    private AnalyzeService analyzeAddressService;
+
+    @Override
+    public User analyzeUser(String text) {
+        User user = new User();
+        user.setName(extractName(text));
+        user.setPhoneNum(extractPhoneNum(text));
+        user.setIdNum(extractIDNum(text));
+        user.setZipCode(extractZIPCode(text));
+        String address = extractAddress(text, user);
+        List<Address> addressList = analyzeAddress(address);
+        user.setAddressList(addressList);
+        return user;
+    }
+
+    @Override
+    public List<Address> analyzeAddress(String address) {
+        return analyzeAddressService.analyzeAddress(address);
+    }
+
+    private String deleteDisturbWords(String text) {
         for (String word : DISTURB_WORDS) {
             text = text.replaceAll(word, "");
         }
         return text.replaceAll("[\n|\r]", " ");
     }
 
-    public String extractName(String text) {
+    private String extractName(String text) {
         List<Term> termList = HanLP.segment(text);
         Iterator<Term> iterator = termList.iterator();
         while (iterator.hasNext()) {
@@ -55,27 +78,27 @@ public class UserService {
         return null;
     }
 
-    public String extractPhoneNum(String text) {
+    private String extractPhoneNum(String text) {
         Pattern r = Pattern.compile(REGX_PHONE_NUM);
         Matcher m = r.matcher(text);
         return m.find() ? m.group() : null;
     }
 
 
-    public String extractIDNum(String text) {
+    private String extractIDNum(String text) {
         Pattern r = Pattern.compile(REGX_ID_NUM);
         Matcher m = r.matcher(text);
         return m.find() ? StringUtils.trim(m.group()) : null;
     }
 
-    public String extractZIPCode(String text) {
+    private String extractZIPCode(String text) {
         Pattern r = Pattern.compile(REGX_ZIP_CODE);
         Matcher m = r.matcher(text);
         return m.find() ? m.group() : null;
     }
 
 
-    public String extractAddress(String text, User user) {
+    private String extractAddress(String text, User user) {
         text = deleteDisturbWords(text);
         if (StringUtils.isNotEmpty(user.getName())) {
             text = text.replaceAll(user.getName(), "");

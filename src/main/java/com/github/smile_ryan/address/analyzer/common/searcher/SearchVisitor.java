@@ -3,7 +3,7 @@ package com.github.smile_ryan.address.analyzer.common.searcher;
 import com.github.smile_ryan.address.analyzer.common.model.Region;
 import com.github.smile_ryan.address.analyzer.common.searcher.TreeNode.SearchNodeBuilder;
 import com.github.smile_ryan.address.analyzer.common.util.AddressUtils;
-import com.github.smile_ryan.address.analyzer.service.AddressService;
+import com.github.smile_ryan.address.analyzer.service.impl.AnalyzeAddressService;
 import com.google.common.collect.Lists;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import org.springframework.util.CollectionUtils;
 public class SearchVisitor {
 
     @Autowired
-    private AddressService addressService;
+    private AnalyzeAddressService analyzeAddressService;
 
     public void visit(TreeNode parentNode) {
         String term = parentNode.nextTokenize();
@@ -37,10 +37,10 @@ public class SearchVisitor {
         List<Region> regions = Lists.newArrayList();
 
         if (parentNode.getRegion() == null || parentNode.getRegion().getRegionLevel() < 3) {
-            regions = addressService.searchRegion(term, parentNode.getRegion());
+            regions = analyzeAddressService.searchRegion(term, parentNode.getRegion());
         }
         if (CollectionUtils.isEmpty(regions) || AddressUtils.inferenceRegionLevel(term) == 4) {
-            regions = addressService.searchStreet(term, parentNode.getRegion());
+            regions = analyzeAddressService.searchStreet(term, parentNode.getRegion());
         }
         log.debug("Keyword:{}, TotalHit:{}, ParentRegion:{}", term, regions.size(), parentNode.getRegion());
         for (Region region : regions) {
