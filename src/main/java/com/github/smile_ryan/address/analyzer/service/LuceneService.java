@@ -46,13 +46,13 @@ public class LuceneService {
     private ReentrantLock lock = new ReentrantLock();
     private long lastGeneration;
     private AtomicLong commitCount;
-    @Value("${indexDirectory:/Users/ryan/tmp/lucene/address}")
+    @Value("${lucene.indexDirectory}")
     private String indexDirectoryPath;
-    @Value("${indexReopenMaxStaleSec:10}")
+    @Value("${lucene.indexReopenMaxStaleSec}")
     private double maxStaleSec;
-    @Value("${indexReopenMinStaleSec:0.025}")
+    @Value("${lucene.indexReopenMinStaleSec}")
     private double minStaleSec;
-    @Value("${maxCommitCount: 100}")
+    @Value("${lucene.maxCommitCount}")
     private long maxCommitCount;
 
     @PostConstruct
@@ -82,6 +82,7 @@ public class LuceneService {
         }
         if (lock.tryLock()) {
             try {
+                log.info("Committing document:" + maxCommitCount);
                 indexWriter.commit();
                 commitCount.set(commitCount.get() - cc >= 0 ? commitCount.get() - cc : 0);
                 log.debug("Committed to Lucene index.");
@@ -139,6 +140,7 @@ public class LuceneService {
 
     public void deleteAll() {
         try {
+            log.warn("Deleting all index document.");
             lastGeneration = indexWriter.deleteAll();
             log.debug("Deleted document in Lucene index.");
         } catch (IOException e) {
@@ -220,6 +222,7 @@ public class LuceneService {
 
     public void optimize() {
         try {
+            log.info("Optimize index:" + indexDirectoryPath);
             indexWriter.forceMerge(1);
         } catch (IOException e) {
             log.error("Error while optimizing index.");

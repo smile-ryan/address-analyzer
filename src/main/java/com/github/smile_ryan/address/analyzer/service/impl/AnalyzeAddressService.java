@@ -68,9 +68,6 @@ public class AnalyzeAddressService implements AnalyzeService {
     @Autowired
     private LuceneService luceneService;
 
-    @Value("classpath:address.txt")
-    private Resource addressResource;
-
     @Override
     public List<Address> analyzeAddress(String address) {
         List<String> tokenizeList = tokenize(address);
@@ -149,36 +146,6 @@ public class AnalyzeAddressService implements AnalyzeService {
         List<Pair<ScoreDoc, Document>> list = luceneService.search(query);
         return CollectionUtils.isEmpty(list) ? null : list.get(0);
     }
-
-    public void initAddressIndex() throws IOException {
-
-        luceneService.deleteAll();
-
-        File file = addressResource.getFile();
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        String line;
-        while (StringUtils.isNotBlank(line = reader.readLine())) {
-            List<String> addressSpits = Splitter.on(" ").omitEmptyStrings().splitToList(line);
-            Document doc = new Document();
-            String regionCode = addressSpits.get(0);
-            String regionName = addressSpits.get(1);
-            String parentCode = addressSpits.get(2);
-            String regionPath = addressSpits.get(4);
-            int regionLevel = Splitter.on(",").splitToList(regionPath).size();
-            doc.add(new StringField("RegionCode", regionCode, Store.YES));
-            doc.add(new TextField("RegionName", regionName, Store.YES));
-            doc.add(new TextField("ShortName", AddressUtils.extractShortName(regionName), Store.YES));
-            doc.add(new StringField("ParentCode", parentCode, Store.YES));
-            doc.add(new IntPoint("RegionLevel", regionLevel));
-            doc.add(new StoredField("RegionLevel", regionLevel));
-            doc.add(new NumericDocValuesField("RegionLevel", regionLevel));
-            doc.add(new StringField("RegionPath", regionPath, Store.YES));
-            luceneService.addDocument(doc);
-        }
-
-        luceneService.optimize();
-    }
-
 
     private void fillAddress(Address address) {
         Region lowest = address.getLowestLevelRegion();

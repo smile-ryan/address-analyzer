@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.github.smile_ryan</groupId>
-	<artifactId>address-analyzer</artifactId>
+	<artifactId>lucene-analyzer</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>address-analyzer</name>
 

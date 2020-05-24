@@ -58,17 +58,17 @@ import org.wltea.analyzer.lucene.IKAnalyzer;
 @Slf4j
 public class TestCase {
 
-    static {
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        JoranConfigurator configurator = new JoranConfigurator();
-        configurator.setContext(lc);
-        lc.reset();
-        try {
-            configurator.doConfigure("/Users/ryan/dev/workspace/address-analyzer/src/test/resources/logback-spring.xml");
-        } catch (JoranException e) {
-            e.printStackTrace();
-        }
-    }
+//    static {
+//        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+//        JoranConfigurator configurator = new JoranConfigurator();
+//        configurator.setContext(lc);
+//        lc.reset();
+//        try {
+//            configurator.doConfigure("/Users/ryan/dev/workspace/address-analyzer/src/test/resources/logback-spring.xml");
+//        } catch (JoranException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private String[] unit = new String[]{"自治区", "自治州", "自治县", "自治旗", "特别行政区", "行政区", "地区", "省", "市", "县", "盟", "区", "乡", "镇", "街道"};
     private String[] minzu = new String[]{"壮族", "满族", "回族", "苗族", "维吾尔族", "土家族", "彝族", "蒙古族", "藏族", "布依族", "侗族", "瑶族", "朝鲜族", "白族", "哈尼族", "哈萨克族", "黎族", "傣族", "畲族", "傈僳族", "仡佬族",
