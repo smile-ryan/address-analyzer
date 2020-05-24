@@ -1,4 +1,4 @@
-package com.github.smile_ryan.lucene;
+package com.github.smile_ryan.address.analyzer;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
