@@ -23,6 +23,8 @@ public class TreeNode {
 
     private Region region;
 
+    private Boolean analyzeStreet;
+
     private List<TreeNode> children = Lists.newArrayList();
 
     @JsonIgnore
@@ -59,12 +61,15 @@ public class TreeNode {
 
         private List<String> tokenizeList;
 
+        private Boolean analyzeStreet;
+
         public TreeNode build() {
             TreeNode treeNode = new TreeNode();
             treeNode.setTokenize(this.tokenize);
             treeNode.setRegion(this.region);
             treeNode.setChildren(this.children);
             treeNode.setTokenizeList(this.tokenizeList);
+            treeNode.setAnalyzeStreet(this.analyzeStreet);
             return treeNode;
         }
 
@@ -75,6 +80,11 @@ public class TreeNode {
 
         public SearchNodeBuilder region(Region region) {
             this.region = region;
+            return this;
+        }
+
+        public SearchNodeBuilder analyzeStreet(Boolean analyzeStreet) {
+            this.analyzeStreet = analyzeStreet;
             return this;
         }
 

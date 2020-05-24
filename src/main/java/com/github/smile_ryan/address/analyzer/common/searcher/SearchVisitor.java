@@ -39,13 +39,14 @@ public class SearchVisitor {
         if (parentNode.getRegion() == null || parentNode.getRegion().getRegionLevel() < 3) {
             regions = analyzeAddressService.searchRegion(term, parentNode.getRegion());
         }
-        if (CollectionUtils.isEmpty(regions) || AddressUtils.inferenceRegionLevel(term) == 4) {
+        if (parentNode.getAnalyzeStreet() && (CollectionUtils.isEmpty(regions) || AddressUtils.inferenceRegionLevel(term) == 4)) {
             regions = analyzeAddressService.searchStreet(term, parentNode.getRegion());
         }
         log.debug("Keyword:{}, TotalHit:{}, ParentRegion:{}", term, regions.size(), parentNode.getRegion());
         for (Region region : regions) {
             TreeNode child = new SearchNodeBuilder()
                 .tokenizeList(parentNode.getTokenizeList())
+                .analyzeStreet(parentNode.getAnalyzeStreet())
                 .tokenize(term).region(region).build();
             parentNode.getChildren().add(child);
             child.accept(this);

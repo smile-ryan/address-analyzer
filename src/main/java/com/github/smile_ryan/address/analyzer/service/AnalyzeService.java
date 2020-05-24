@@ -15,9 +15,8 @@ import java.util.List;
  */
 public interface AnalyzeService {
 
-    List<Address> analyzeAddress(String address);
+    User analyzeUser(String text, Boolean analyzeAddressStreet);
 
-    User analyzeUser(String text);
-
+    List<Address> analyzeAddress(String address, Boolean analyzeAddressStreet);
 
 }

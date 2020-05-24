@@ -31,15 +31,15 @@ public class AnalyzeController {
     private AnalyzeService analyzeUserService;
 
     @GetMapping("/user")
-    public User user(@RequestParam String text) {
+    public User user(@RequestParam String text, @RequestParam(required = false) boolean analyzeAddressStreet) {
         Preconditions.checkNotNull(text);
-        return analyzeUserService.analyzeUser(text);
+        return analyzeUserService.analyzeUser(text, analyzeAddressStreet);
     }
 
     @GetMapping("/address")
-    public List<Address> address(@RequestParam String address) {
+    public List<Address> address(@RequestParam String address, @RequestParam(required = false) boolean analyzeAddressStreet) {
         Preconditions.checkNotNull(address);
-        return analyzeAddressService.analyzeAddress(address);
+        return analyzeAddressService.analyzeAddress(address, analyzeAddressStreet);
     }
 
 

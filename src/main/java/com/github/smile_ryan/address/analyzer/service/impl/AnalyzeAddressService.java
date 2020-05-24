@@ -69,15 +69,15 @@ public class AnalyzeAddressService implements AnalyzeService {
     private LuceneService luceneService;
 
     @Override
-    public List<Address> analyzeAddress(String address) {
+    public List<Address> analyzeAddress(String address, Boolean analyzeAddressStreet) {
         List<String> tokenizeList = tokenize(address);
-        TreeNode treeNode = new SearchNodeBuilder().tokenizeList(tokenizeList).build().accept(searchVisitor);
+        TreeNode treeNode = new SearchNodeBuilder().tokenizeList(tokenizeList).analyzeStreet(analyzeAddressStreet).build().accept(searchVisitor);
         return AddressUtils.processAddressList(treeNode.accept(resultVisitor))
             .stream().peek(this::fillAddress).collect(Collectors.toList());
     }
 
     @Override
-    public User analyzeUser(String text) {
+    public User analyzeUser(String text, Boolean analyzeAddressStreet) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

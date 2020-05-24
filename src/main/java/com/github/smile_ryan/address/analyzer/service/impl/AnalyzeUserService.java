@@ -39,21 +39,21 @@ public class AnalyzeUserService implements AnalyzeService {
     private AnalyzeService analyzeAddressService;
 
     @Override
-    public User analyzeUser(String text) {
+    public User analyzeUser(String text, Boolean analyzeAddressStreet) {
         User user = new User();
         user.setName(extractName(text));
         user.setPhoneNum(extractPhoneNum(text));
         user.setIdNum(extractIDNum(text));
         user.setZipCode(extractZIPCode(text));
         String address = extractAddress(text, user);
-        List<Address> addressList = analyzeAddress(address);
+        List<Address> addressList = analyzeAddress(address, analyzeAddressStreet);
         user.setAddressList(addressList);
         return user;
     }
 
     @Override
-    public List<Address> analyzeAddress(String address) {
-        return analyzeAddressService.analyzeAddress(address);
+    public List<Address> analyzeAddress(String address, Boolean analyzeStreet) {
+        return analyzeAddressService.analyzeAddress(address, analyzeStreet);
     }
 
     private String deleteDisturbWords(String text) {
