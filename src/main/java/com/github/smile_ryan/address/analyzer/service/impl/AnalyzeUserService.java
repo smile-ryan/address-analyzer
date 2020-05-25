@@ -1,7 +1,9 @@
 package com.github.smile_ryan.address.analyzer.service.impl;
 
-import com.github.smile_ryan.address.analyzer.common.model.Address;
-import com.github.smile_ryan.address.analyzer.common.model.User;
+import com.github.smile_ryan.address.analyzer.common.model.domain.Address;
+import com.github.smile_ryan.address.analyzer.common.model.domain.User;
+import com.github.smile_ryan.address.analyzer.common.model.request.AnalyzeAddressRequest;
+import com.github.smile_ryan.address.analyzer.common.model.request.AnalyzeUserRequest;
 import com.github.smile_ryan.address.analyzer.service.AnalyzeService;
 import com.google.common.collect.Lists;
 import com.hankcs.hanlp.HanLP;
@@ -39,21 +41,22 @@ public class AnalyzeUserService implements AnalyzeService {
     private AnalyzeService analyzeAddressService;
 
     @Override
-    public User analyzeUser(String text, Boolean analyzeAddressStreet) {
+    public User analyzeUser(AnalyzeUserRequest userRequest) {
         User user = new User();
-        user.setName(extractName(text));
-        user.setPhoneNum(extractPhoneNum(text));
-        user.setIdNum(extractIDNum(text));
-        user.setZipCode(extractZIPCode(text));
-        String address = extractAddress(text, user);
-        List<Address> addressList = analyzeAddress(address, analyzeAddressStreet);
+        user.setName(extractName(userRequest.getText()));
+        user.setPhoneNum(extractPhoneNum(userRequest.getText()));
+        user.setIdNum(extractIDNum(userRequest.getText()));
+        user.setZipCode(extractZIPCode(userRequest.getText()));
+        String address = extractAddress(userRequest.getText(), user);
+        userRequest.getAddress().setAddress(address);
+        List<Address> addressList = analyzeAddress(userRequest.getAddress());
         user.setAddressList(addressList);
         return user;
     }
 
     @Override
-    public List<Address> analyzeAddress(String address, Boolean analyzeStreet) {
-        return analyzeAddressService.analyzeAddress(address, analyzeStreet);
+    public List<Address> analyzeAddress(AnalyzeAddressRequest addressRequest) {
+        return analyzeAddressService.analyzeAddress(addressRequest);
     }
 
     private String deleteDisturbWords(String text) {

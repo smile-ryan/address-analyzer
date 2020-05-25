@@ -1,6 +1,6 @@
 package com.github.smile_ryan.address.analyzer.common.searcher;
 
-import com.github.smile_ryan.address.analyzer.common.model.Address;
+import com.github.smile_ryan.address.analyzer.common.model.domain.Address;
 import com.github.smile_ryan.address.analyzer.common.util.AddressUtils;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;

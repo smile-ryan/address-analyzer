@@ -1,7 +1,8 @@
 package com.github.smile_ryan.address.analyzer.common.util;
 
-import com.github.smile_ryan.address.analyzer.common.model.Address;
-import com.github.smile_ryan.address.analyzer.common.model.Region;
+import com.github.smile_ryan.address.analyzer.common.enums.RegionLevel;
+import com.github.smile_ryan.address.analyzer.common.model.domain.Address;
+import com.github.smile_ryan.address.analyzer.common.model.domain.Region;
 import com.github.smile_ryan.address.analyzer.common.searcher.TreeNode;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -75,10 +76,12 @@ public class AddressUtils {
         Region region = new Region();
         region.setRegionCode(doc.get("RegionCode"));
         region.setRegionName(doc.get("RegionName"));
+        region.setRegionNameCN(doc.get("RegionNameCN"));
         region.setShortName(doc.get("ShortName"));
         region.setRegionLevel(doc.get("RegionLevel") != null ? Integer.parseInt(doc.get("RegionLevel")) : null);
         region.setParentCode(doc.get("ParentCode"));
         region.setRegionPath(doc.get("RegionPath"));
+        region.setRegionScheme(doc.get("RegionScheme"));
         if (setRelevance) {
             region.setRelevance(BigDecimal.valueOf(pair.getKey().score));
         }
@@ -120,32 +123,32 @@ public class AddressUtils {
     public static int inferenceRegionLevel(String region) {
         for (String s : AddressUtils.ADDRESS_UNITS_LEVEL_1) {
             if (region.endsWith(s)) {
-                return 1;
+                return RegionLevel.province.getValue();
             }
         }
         for (String s : AddressUtils.ADDRESS_UNITS_LEVEL_2) {
             if (region.endsWith(s)) {
-                return 2;
+                return RegionLevel.city.getValue();
             }
         }
         for (String s : AddressUtils.ADDRESS_UNITS_LEVEL_3) {
             if (region.endsWith(s)) {
-                return 3;
+                return RegionLevel.district.getValue();
             }
         }
         for (String s : AddressUtils.ADDRESS_UNITS_LEVEL_4) {
             if (region.endsWith(s)) {
-                return 4;
+                return RegionLevel.street.getValue();
             }
         }
         for (String s : AddressUtils.SPECIAL_MUNICIPALITY) {
             if (region.endsWith(s)) {
-                return 1;
+                return RegionLevel.province.getValue();
             }
         }
         for (String s : AddressUtils.SPECIAL_DISTRICT) {
             if (region.endsWith(s)) {
-                return 2;
+                return RegionLevel.city.getValue();
             }
         }
         return 0;
@@ -154,10 +157,10 @@ public class AddressUtils {
 
     public static String extractDetail(TreeNode node) {
         if (!StringUtils.isEmpty(node.getTokenize())) {
-            List<String> tokenizeList = node.getTokenizeList();
+            List<String> tokenizeList = node.getAnalyzeAddressRequest().getTokenizeList();
             String detail = Joiner.on("").join(tokenizeList);
             detail = detail.substring(detail.indexOf(node.getTokenize()));
-            if (node.getRegion().getRegionLevel() < 4) {
+            if (node.getRegion().getRegionLevel() < RegionLevel.street.getValue()) {
                 detail = detail.substring(detail.indexOf(node.getTokenize()) + node.getTokenize().length());
             } else {
                 detail = detail.replace(node.getRegion().getRegionName(), "");

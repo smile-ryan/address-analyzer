@@ -1,7 +1,9 @@
 package com.github.smile_ryan.address.analyzer.service;
 
-import com.github.smile_ryan.address.analyzer.common.model.Address;
-import com.github.smile_ryan.address.analyzer.common.model.User;
+import com.github.smile_ryan.address.analyzer.common.model.domain.Address;
+import com.github.smile_ryan.address.analyzer.common.model.domain.User;
+import com.github.smile_ryan.address.analyzer.common.model.request.AnalyzeAddressRequest;
+import com.github.smile_ryan.address.analyzer.common.model.request.AnalyzeUserRequest;
 import java.util.List;
 
 /**
@@ -15,8 +17,8 @@ import java.util.List;
  */
 public interface AnalyzeService {
 
-    User analyzeUser(String text, Boolean analyzeAddressStreet);
+    User analyzeUser(AnalyzeUserRequest userRequest);
 
-    List<Address> analyzeAddress(String address, Boolean analyzeAddressStreet);
+    List<Address> analyzeAddress(AnalyzeAddressRequest addressRequest);
 
 }

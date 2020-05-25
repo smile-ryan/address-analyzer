@@ -1,8 +1,9 @@
 package com.github.smile_ryan.address.analyzer.common.searcher;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.github.smile_ryan.address.analyzer.common.model.Address;
-import com.github.smile_ryan.address.analyzer.common.model.Region;
+import com.github.smile_ryan.address.analyzer.common.model.domain.Address;
+import com.github.smile_ryan.address.analyzer.common.model.domain.Region;
+import com.github.smile_ryan.address.analyzer.common.model.request.AnalyzeAddressRequest;
 import com.google.common.collect.Lists;
 import java.util.List;
 import lombok.Data;
@@ -19,21 +20,14 @@ import lombok.Data;
 @Data
 public class TreeNode {
 
-    private String tokenize;
-
     private Region region;
-
-    private Boolean analyzeStreet;
 
     private List<TreeNode> children = Lists.newArrayList();
 
-    @JsonIgnore
-    private List<String> tokenizeList;
+    private AnalyzeAddressRequest analyzeAddressRequest;
 
-    public String nextTokenize() {
-        int i = tokenizeList.indexOf(tokenize);
-        return ++i < tokenizeList.size() ? tokenizeList.get(i) : null;
-    }
+    @JsonIgnore
+    private String tokenize;
 
     public TreeNode accept(SearchVisitor searchVisitor) {
         searchVisitor.visit(this);
@@ -53,28 +47,25 @@ public class TreeNode {
     @Data
     public static class SearchNodeBuilder {
 
-        private String tokenize;
-
         private Region region;
 
         private List<TreeNode> children = Lists.newArrayList();
 
-        private List<String> tokenizeList;
+        private AnalyzeAddressRequest analyzeAddressRequest;
 
-        private Boolean analyzeStreet;
+        private String tokenize;
 
         public TreeNode build() {
             TreeNode treeNode = new TreeNode();
-            treeNode.setTokenize(this.tokenize);
             treeNode.setRegion(this.region);
             treeNode.setChildren(this.children);
-            treeNode.setTokenizeList(this.tokenizeList);
-            treeNode.setAnalyzeStreet(this.analyzeStreet);
+            treeNode.setTokenize(this.tokenize);
+            treeNode.setAnalyzeAddressRequest(this.analyzeAddressRequest);
             return treeNode;
         }
 
-        public SearchNodeBuilder tokenize(String term) {
-            this.tokenize = term;
+        public SearchNodeBuilder analyzeAddressRequest(AnalyzeAddressRequest analyzeAddressRequest) {
+            this.analyzeAddressRequest = analyzeAddressRequest;
             return this;
         }
 
@@ -83,20 +74,17 @@ public class TreeNode {
             return this;
         }
 
-        public SearchNodeBuilder analyzeStreet(Boolean analyzeStreet) {
-            this.analyzeStreet = analyzeStreet;
+        public SearchNodeBuilder tokenize(String tokenize) {
+            this.tokenize = tokenize;
             return this;
         }
+
 
         public SearchNodeBuilder children(List<TreeNode> children) {
             this.children = children;
             return this;
         }
 
-        public SearchNodeBuilder tokenizeList(List<String> tokenizeList) {
-            this.tokenizeList = tokenizeList;
-            return this;
-        }
     }
 
 

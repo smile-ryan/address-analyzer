@@ -33,4 +33,4 @@ lucene:
   indexDirectory: /Users/ryan/tmp/lucene/address
   indexReopenMaxStaleSec: 10
   indexReopenMinStaleSec: 0.025
-  maxCommitCount: 200
+  maxCommitCount: 500

@@ -67,17 +67,21 @@ public class LuceneService {
 
     @PreDestroy
     public void destroy() throws Exception {
+        log.info("Committing document and closing indexWriter.");
         indexReopenThread.interrupt();
         indexReopenThread.close();
-
         indexWriter.commit();
         indexWriter.close();
     }
 
 
     public void commit() {
+        commit(false);
+    }
+
+    public void commit(boolean immediately) {
         long cc = commitCount.incrementAndGet();
-        if (cc < maxCommitCount) {
+        if (cc < maxCommitCount && !immediately) {
             return;
         }
         if (lock.tryLock()) {
