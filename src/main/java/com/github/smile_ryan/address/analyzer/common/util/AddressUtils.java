@@ -74,6 +74,7 @@ public class AddressUtils {
         }
         Document doc = pair.getValue();
         Region region = new Region();
+        region.setCountryCode(doc.get("CountryCode"));
         region.setRegionCode(doc.get("RegionCode"));
         region.setRegionName(doc.get("RegionName"));
         region.setRegionNameCN(doc.get("RegionNameCN"));

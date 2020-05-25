@@ -44,13 +44,13 @@ public class AnalyzeUserService implements AnalyzeService {
     public User analyzeUser(AnalyzeUserRequest userRequest) {
         User user = new User();
         user.setName(extractName(userRequest.getText()));
-        user.setPhoneNum(extractPhoneNum(userRequest.getText()));
-        user.setIdNum(extractIDNum(userRequest.getText()));
+        user.setPhoneNumber(extractPhoneNum(userRequest.getText()));
+        user.setIdNumber(extractIDNum(userRequest.getText()));
         user.setZipCode(extractZIPCode(userRequest.getText()));
         String address = extractAddress(userRequest.getText(), user);
         userRequest.getAddress().setAddress(address);
         List<Address> addressList = analyzeAddress(userRequest.getAddress());
-        user.setAddressList(addressList);
+        user.setAddresses(addressList);
         return user;
     }
 
@@ -106,11 +106,11 @@ public class AnalyzeUserService implements AnalyzeService {
         if (StringUtils.isNotEmpty(user.getName())) {
             text = text.replaceAll(user.getName(), "");
         }
-        if (StringUtils.isNotEmpty(user.getIdNum())) {
-            text = text.replaceAll(user.getIdNum(), "");
+        if (StringUtils.isNotEmpty(user.getIdNumber())) {
+            text = text.replaceAll(user.getIdNumber(), "");
         }
-        if (StringUtils.isNotEmpty(user.getPhoneNum())) {
-            text = text.replaceAll(user.getPhoneNum(), "");
+        if (StringUtils.isNotEmpty(user.getPhoneNumber())) {
+            text = text.replaceAll(user.getPhoneNumber(), "");
         }
         if (StringUtils.isNotEmpty(user.getZipCode())) {
             text = text.replaceAll(user.getZipCode(), "");

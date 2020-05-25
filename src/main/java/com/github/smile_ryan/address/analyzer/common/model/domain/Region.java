@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 @Data
 public class Region {
 
+    @JsonIgnore
     private String countryCode;
 
     private String regionCode;
@@ -29,6 +30,7 @@ public class Region {
     @JsonIgnore
     private String shortName;
 
+    @JsonIgnore
     private Integer regionLevel;
 
     @JsonIgnore
@@ -36,8 +38,10 @@ public class Region {
 
     private String parentCode;
 
+    @JsonIgnore
     private String regionScheme;
 
+    @JsonIgnore
     private BigDecimal relevance = BigDecimal.ZERO;
 
     @Override

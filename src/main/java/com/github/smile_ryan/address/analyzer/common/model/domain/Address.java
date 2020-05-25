@@ -33,6 +33,7 @@ public class Address implements Cloneable {
     @JsonIgnore
     private String tokenize;
 
+    @JsonIgnore
     private BigDecimal relevance = BigDecimal.ZERO;
 
     @JsonIgnore
@@ -61,7 +62,7 @@ public class Address implements Cloneable {
         }
         switch (RegionLevel.getRegionLevel(region.getRegionLevel())) {
             case country:
-                if(province == null) setCountry(region);
+                if(country == null) setCountry(region);
                 break;
             case province:
                 if(province == null) setProvince(region);

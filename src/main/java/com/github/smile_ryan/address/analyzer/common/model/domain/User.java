@@ -17,12 +17,12 @@ public class User {
 
     private String name;
 
-    private String phoneNum;
+    private String phoneNumber;
 
-    private String idNum;
+    private String idNumber;
 
     private String zipCode;
 
-    private List<Address> addressList;
+    private List<Address> addresses;
 
 }
