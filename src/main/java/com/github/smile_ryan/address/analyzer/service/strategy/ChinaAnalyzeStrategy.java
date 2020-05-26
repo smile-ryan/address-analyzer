@@ -83,16 +83,17 @@ public class ChinaAnalyzeStrategy implements AnalyzeStrategy {
         addressRequest.setAnalyzeStreet(userRequest.isAnalyzeStreet());
         addressRequest.setCountryCode(userRequest.getCountryCode());
         addressRequest.setRegionScheme(userRequest.getRegionScheme());
-        user.setAddresses(analyzeAddress(addressRequest));
+        user.setAddress(analyzeAddress(addressRequest));
         return user;
     }
 
     @Override
-    public List<Address> analyzeAddress(AnalyzeAddressRequest addressRequest) {
+    public Address analyzeAddress(AnalyzeAddressRequest addressRequest) {
         addressRequest.setTokenizeList(tokenize(addressRequest.getAddress()));
         TreeNode treeNode = new SearchNodeBuilder().analyzeAddressRequest(addressRequest).build().accept(searchVisitor, this);
-        return AddressUtils.processAddressList(treeNode.accept(resultVisitor))
+        List<Address> addressList = AddressUtils.processAddressList(treeNode.accept(resultVisitor))
             .stream().peek(this::fillAddress).collect(Collectors.toList());
+        return CollectionUtils.isEmpty(addressList) ? null : addressList.get(0);
     }
 
 

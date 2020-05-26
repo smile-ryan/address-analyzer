@@ -31,7 +31,7 @@ public class AnalyzeService {
     }
 
 
-    public List<Address> analyzeAddress(AnalyzeAddressRequest addressRequest) {
+    public Address analyzeAddress(AnalyzeAddressRequest addressRequest) {
         AnalyzeStrategy analyzeStrategy = analyzeStrategyFactory.createStrategy(addressRequest.getCountryCode());
         return analyzeStrategy.analyzeAddress(addressRequest);
     }

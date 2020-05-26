@@ -40,13 +40,11 @@ public class AnalyzeController {
 
     @GetMapping("/user")
     public User user(@RequestBody @Valid AnalyzeUserRequest user) {
-        Preconditions.checkNotNull(user.getCountryCode());
         return analyzeUserService.analyzeUser(user);
     }
 
     @GetMapping("/address")
-    public List<Address> address(@RequestBody @Valid AnalyzeAddressRequest address) {
-        Preconditions.checkNotNull(address.getCountryCode());
+    public Address address(@RequestBody @Valid AnalyzeAddressRequest address) {
         return analyzeAddressService.analyzeAddress(address);
     }
 

@@ -19,7 +19,7 @@ import java.util.List;
  */
 public interface AnalyzeStrategy {
 
-    List<Address> analyzeAddress(AnalyzeAddressRequest addressRequest);
+    Address analyzeAddress(AnalyzeAddressRequest addressRequest);
 
     User analyzeUser(AnalyzeUserRequest userRequest);
 

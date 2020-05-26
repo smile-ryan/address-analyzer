@@ -23,6 +23,6 @@ public class User {
 
     private String zipCode;
 
-    private List<Address> addresses;
+    private Address address;
 
 }
