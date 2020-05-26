@@ -1,5 +1,7 @@
 package com.github.smile_ryan.address.analyzer.common.model.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
 import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -18,7 +20,10 @@ public class AnalyzeUserRequest {
     @NotBlank
     private String text;
 
-    private AnalyzeAddressRequest address;
+    private String countryCode = "CN";
 
+    private boolean analyzeStreet;
+
+    private String regionScheme = "OLD";
 
 }

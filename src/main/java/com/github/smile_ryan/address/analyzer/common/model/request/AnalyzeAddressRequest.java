@@ -22,9 +22,9 @@ public class AnalyzeAddressRequest {
 
     private boolean analyzeStreet;
 
-    private String countryCode = "CN";
-
     private String regionScheme = "OLD";
+
+    private String countryCode = "CN";
 
     @JsonIgnore
     private List<String> tokenizeList;

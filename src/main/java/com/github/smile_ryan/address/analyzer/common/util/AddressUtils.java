@@ -28,7 +28,7 @@ import org.springframework.util.CollectionUtils;
  */
 public class AddressUtils {
 
-    public static final String REGX_SYMBOL = "[`~!@#$^&*()=|{}':;',\\\\[\\\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？\\s]";
+    public static final String REGX_SYMBOL = "[`~!@#$^&*()=|{}':;',\\\\[\\\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？\\s\\r\\n]";
 
     public static final List<String> ADDRESS_UNITS = Lists.newArrayList();
 
@@ -69,7 +69,7 @@ public class AddressUtils {
     }
 
     public static Region convertDocument(Pair<ScoreDoc, Document> pair, boolean setRelevance) {
-        if (pair.getKey() == null || pair.getValue() == null) {
+        if (pair == null || pair.getKey() == null || pair.getValue() == null) {
             return null;
         }
         Document doc = pair.getValue();

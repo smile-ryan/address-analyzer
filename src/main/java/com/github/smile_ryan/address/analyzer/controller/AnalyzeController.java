@@ -8,13 +8,16 @@ import com.github.smile_ryan.address.analyzer.service.AnalyzeService;
 import com.google.common.base.Preconditions;
 import com.hankcs.hanlp.HanLP;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
 /**
  * <pre>
@@ -37,14 +40,13 @@ public class AnalyzeController {
 
     @GetMapping("/user")
     public User user(@RequestBody @Valid AnalyzeUserRequest user) {
+        Preconditions.checkNotNull(user.getCountryCode());
         return analyzeUserService.analyzeUser(user);
     }
 
     @GetMapping("/address")
     public List<Address> address(@RequestBody @Valid AnalyzeAddressRequest address) {
-        if ("CN".equalsIgnoreCase(address.getCountryCode()) || "TW".equalsIgnoreCase(address.getCountryCode())) {
-            address.setAddress(HanLP.convertToSimplifiedChinese(address.getAddress()));
-        }
+        Preconditions.checkNotNull(address.getCountryCode());
         return analyzeAddressService.analyzeAddress(address);
     }
 
