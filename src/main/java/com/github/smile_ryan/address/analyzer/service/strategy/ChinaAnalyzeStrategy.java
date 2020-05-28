@@ -103,7 +103,7 @@ public class ChinaAnalyzeStrategy implements AnalyzeStrategy {
         try {
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
             Query nameQuery = new QueryParser("RegionName", new SynonymsAnalyzer())
-                .parse("RegionName:" + regionName + "^2.0 +ShortName:" + AddressUtils.extractShortName(regionName));
+                .parse("RegionName:" + regionName + "^2.0 || ShortName:" + AddressUtils.extractShortName(regionName));
             builder.add(nameQuery, Occur.MUST);
             builder.add(IntPoint.newRangeQuery("RegionLevel", 1, 4), Occur.FILTER);
 
@@ -124,11 +124,9 @@ public class ChinaAnalyzeStrategy implements AnalyzeStrategy {
         List<Region> regionList = Lists.newLinkedList();
         try {
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
-            Query nameQuery = new QueryParser("RegionName", new KeywordAnalyzer()).parse("RegionName:" + regionName + "^2.0");
-            builder.add(nameQuery, Occur.SHOULD);
-
-            Query shortNameQuery = new QueryParser("ShortName", new KeywordAnalyzer()).parse(AddressUtils.extractShortName(regionName));
-            builder.add(shortNameQuery, Occur.MUST);
+            Query nameQuery = new QueryParser("RegionName", new KeywordAnalyzer())
+                .parse("RegionName:" + regionName + "^2.0 || ShortName:" + AddressUtils.extractShortName(regionName));
+            builder.add(nameQuery, Occur.MUST);
 
             builder.add(new TermQuery(new org.apache.lucene.index.Term("RegionScheme", parentNode.getAnalyzeAddressRequest().getRegionScheme())), Occur.FILTER);
 
@@ -197,7 +195,7 @@ public class ChinaAnalyzeStrategy implements AnalyzeStrategy {
         if (StringUtils.isNotEmpty(user.getZipCode())) {
             text = text.replaceAll(user.getZipCode(), "");
         }
-        return text.replaceAll(AddressUtils.REGX_SYMBOL, "");
+        return text;
     }
 
     private List<String> tokenize(String address) {
@@ -211,7 +209,8 @@ public class ChinaAnalyzeStrategy implements AnalyzeStrategy {
             }
         }
         return tokenizeList.stream().filter(s ->
-            !CollectionUtils.contains(AddressUtils.ADDRESS_UNITS.iterator(), s)
+            !CollectionUtils.contains(AddressUtils.SYMBOLS.iterator(), s)
+                && !CollectionUtils.contains(AddressUtils.ADDRESS_UNITS.iterator(), s)
                 && !CollectionUtils.contains(AddressUtils.ADDRESS_NOISE_PHRASES.iterator(), s)
                 && !CollectionUtils.contains(AddressUtils.MINORITIES.iterator(), s)
         ).distinct().collect(Collectors.toList());

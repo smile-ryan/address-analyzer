@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.smile_ryan.address.analyzer.common.model.domain.Address;
 import com.github.smile_ryan.address.analyzer.common.model.domain.Region;
 import com.github.smile_ryan.address.analyzer.common.model.request.AnalyzeAddressRequest;
+import com.github.smile_ryan.address.analyzer.common.util.AddressUtils;
 import com.github.smile_ryan.address.analyzer.service.strategy.AnalyzeStrategy;
 import com.google.common.collect.Lists;
 import java.util.List;
 import lombok.Data;
+import org.springframework.util.CollectionUtils;
 
 /**
  * <pre>
@@ -27,7 +29,6 @@ public class TreeNode {
 
     private AnalyzeAddressRequest analyzeAddressRequest;
 
-    @JsonIgnore
     private String tokenize;
 
     public TreeNode accept(SearchVisitor searchVisitor, AnalyzeStrategy strategy) {

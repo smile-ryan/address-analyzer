@@ -101,6 +101,9 @@ public class Address implements Cloneable {
         if (province != null) {
             return 31 * result + province.hashCode();
         }
+        if (country != null) {
+            return 31 * result + country.hashCode();
+        }
         return 0;
     }
 
@@ -125,6 +128,7 @@ public class Address implements Cloneable {
     @Override
     public String toString() {
         String join = Joiner.on(",").skipNulls().join(
+            country == null ? null : country.toString(),
             province == null ? null : province.toString(),
             city == null ? null : city.toString(),
             district == null ? null : district.toString(),

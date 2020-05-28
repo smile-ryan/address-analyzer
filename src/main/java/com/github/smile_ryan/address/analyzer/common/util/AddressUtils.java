@@ -28,7 +28,7 @@ import org.springframework.util.CollectionUtils;
  */
 public class AddressUtils {
 
-    public static final String REGX_SYMBOL = "[`~!@#$^&*()=|{}':;',\\\\[\\\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？\\s\\r\\n]";
+    public static final List<String> SYMBOLS = Lists.newArrayList(" ", "`", "~", "!", "@", "#", "$", "^", "&", "*", "(", ")", "=", "|", "{", "}", "'", ":", ";", ",", "[", "]", "\\", "/", ".", "<", ">", "?", "！", "￥", "…", "……", "（", "）", "-", "—", "——", "【", "】", "‘", "；", "：", "”", "“", "。", "，", "、", "？");
 
     public static final List<String> ADDRESS_UNITS = Lists.newArrayList();
 

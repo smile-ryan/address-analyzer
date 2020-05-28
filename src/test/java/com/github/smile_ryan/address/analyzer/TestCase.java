@@ -1,5 +1,8 @@
 package com.github.smile_ryan.address.analyzer;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
 import com.github.smile_ryan.address.analyzer.common.model.domain.Address;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -21,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
@@ -30,6 +35,7 @@ import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -39,6 +45,8 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
+import org.slf4j.LoggerFactory;
+import org.springframework.test.context.ActiveProfiles;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
 /**
@@ -51,19 +59,20 @@ import org.wltea.analyzer.lucene.IKAnalyzer;
  * @since v1.0.0
  */
 @Slf4j
+@ActiveProfiles("dev")
 class TestCase {
 
-//    static {
-//        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-//        JoranConfigurator configurator = new JoranConfigurator();
-//        configurator.setContext(lc);
-//        lc.reset();
-//        try {
-//            configurator.doConfigure("/Users/ryan/dev/workspace/address-analyzer/src/test/resources/logback-spring.xml");
-//        } catch (JoranException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    static {
+        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        JoranConfigurator configurator = new JoranConfigurator();
+        configurator.setContext(lc);
+        lc.reset();
+        try {
+            configurator.doConfigure("/Users/ryan/dev/workspace/lucene-analyzer/src/test/resources/logback.xml");
+        } catch (JoranException e) {
+            e.printStackTrace();
+        }
+    }
 
     private String[] unit = new String[]{"自治区", "自治州", "自治县", "自治旗", "特别行政区", "行政区", "地区", "省", "市", "县", "盟", "区", "乡", "镇", "街道"};
     private String[] minzu = new String[]{"壮族", "满族", "回族", "苗族", "维吾尔族", "土家族", "彝族", "蒙古族", "藏族", "布依族", "侗族", "瑶族", "朝鲜族", "白族", "哈尼族", "哈萨克族", "黎族", "傣族", "畲族", "傈僳族", "仡佬族",
@@ -125,15 +134,20 @@ class TestCase {
             String address = list.get(1);
             System.out.println(address);
             CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-            HttpGet httpGet = new HttpGet("http://localhost:8080/address/analyze?address=" + URLEncoder.encode(address));
-            CloseableHttpResponse response = httpClient.execute(httpGet);
+            HttpPost http = new HttpPost("http://localhost:8080/analyze/address");
+            StringEntity requestEntity = new StringEntity("{\"address\": \"" + address + "\", \"analyzeStreet\": true}","utf-8");
+            requestEntity.setContentEncoding("UTF-8");
+            http.setHeader("Content-type", "application/json");
+            http.setEntity(requestEntity);
+            CloseableHttpResponse response = httpClient.execute(http);
             HttpEntity responseEntity = response.getEntity();
             if (responseEntity != null) {
-                List<Address> t = new Gson().fromJson(EntityUtils.toString(responseEntity), new TypeToken<List<Address>>() {
-                }.getType());
-                t.stream().map(a -> a.toString().replaceAll("\\d{6,}\\|", "")).peek(System.out::println).count();
+                Address t = new Gson().fromJson(EntityUtils.toString(responseEntity), Address.class);
+                if (t != null) {
+                    System.out.println(t.toString().replaceAll("\\d{6,}\\|", ""));
+                }
             }
-            System.out.println("--------------------------------------------------------------------------");
+            System.out.println("==========================================================================");
         }
     }
 
@@ -170,29 +184,7 @@ class TestCase {
     }
 
 
-    @Test
-    void search() throws Exception {
-//        System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
-//        System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
-//        System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "stdout");
 
-        System.out.println(System.getProperty("org.apache.commons.logging.Log"));
-        String indexDir = "/Users/ryan/tmp/lucene/address";
-        String field = "ShortName";
-        String queryStr = "新疆省";
-        Directory directory = FSDirectory.open(Paths.get(indexDir));
-        DirectoryReader reader = DirectoryReader.open(directory);
-        IndexSearcher searcher = new IndexSearcher(reader);
-        Analyzer analyzer = new WhitespaceAnalyzer();
-        QueryParser parser = new QueryParser(field, analyzer);
-        Query query = parser.parse(queryStr);
-        TopDocs docs = searcher.search(query, 10);
-        for (ScoreDoc scoreDoc : docs.scoreDocs) {
-            Document doc = searcher.doc(scoreDoc.doc);
-            System.out.println(doc);
-        }
-        reader.close();
-    }
 
     @Test
     void test() {

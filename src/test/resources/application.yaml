@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: lucene-analyzer
   datasource:
     username: root
     password: Yto0ver5eas@2018#XATech
